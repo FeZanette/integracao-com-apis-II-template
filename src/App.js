@@ -25,14 +25,11 @@ function App() {
 
   const getUsuarios = () => {
     axios
-      .get(
-        BASE_URL,
-        {
-          headers: {
-            Authorization: AUTH_TOKEN,
-          },
-        }
-      )
+      .get(BASE_URL, {
+        headers: {
+          Authorization: AUTH_TOKEN,
+        },
+      })
       .then((res) => {
         setUsuarios(res.data);
       })
@@ -41,9 +38,26 @@ function App() {
       });
   };
 
-  const pesquisaUsuario = (pesquisa) => {
-   
+  const pesquisaUsuario = async (pesquisa) => {
+    try {
+      const res = await axios.get(
+        `${BASE_URL}/search?name=${pesquisa.nome}&email=${pesquisa.email}`,
+        {
+          headers: {
+            Authorization: AUTH_TOKEN,
+          },
+        }
+      );
+      setUsuarios(res.data);
+    } catch (err) {
+      // console.log(err.response.data);
+      alert(err.response.data);
+    }
   };
+
+  useEffect(() => {
+    pesquisaUsuario(pesquisa);
+  }, [pesquisa]);
 
   const onChangeName = (e) => {
     setNome(e.target.value);
@@ -59,16 +73,14 @@ function App() {
       email,
     };
     setPesquisa(novaPesquisa);
-   
-    setNome("")
-    setEmail("")
-    
+    setNome("");
+    setEmail("");
   };
 
   const onClickVoltar = () => {
     getUsuarios();
-    setPageFlow(1)
-  }
+    setPageFlow(1);
+  };
 
   return (
     <div>
@@ -96,6 +108,9 @@ function App() {
                 <button type="submit" onClick={enviarDados}>
                   Pesquisar
                 </button>
+                <button type="submit" onClick={onClickVoltar}>
+                  Voltar
+                </button>
               </div>
               {pageFlow === 3 ? (
                 <ButtonCadastro onClick={onClickVoltar}>Voltar</ButtonCadastro>
@@ -104,7 +119,6 @@ function App() {
                   Cadastrar
                 </ButtonCadastro>
               )}
-              
             </ContainerBarra>
             {usuarios.map((usuario) => {
               return (
@@ -119,7 +133,6 @@ function App() {
             })}
           </>
         )}
-        
       </ContainerPrincipal>
     </div>
   );
